@@ -8,12 +8,32 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const basicAuth = require('basic-auth'); //require module for basic access authorization
 const port = 8000;
 
 app.use(bodyParser.json());
 app.use(morgan('common'));
 
-app.get('/pets', (req, res) => {
+const auth = (req, res, next) => {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm="Required"');
+    return res.send(401);
+  }
+  const user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  }
+
+  if (user.name === 'admin' && user.pass === 'meowmix') {
+    return next();
+  } else {
+    return unauthorized(res);
+  }
+}
+
+
+app.get('/pets', auth, (req, res) => {
   fs.readFile(petsPath, 'utf8', function(err, data) {
     if (err) {
       console.error(err.stack); //log it
