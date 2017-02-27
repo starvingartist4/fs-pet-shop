@@ -9,7 +9,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const basicAuth = require('basic-auth'); //require module for basic access authorization
-const port = 8000;
+const port = process.env.PORT || 8000;
 
 app.use(bodyParser.json());
 app.use(morgan('common'));
